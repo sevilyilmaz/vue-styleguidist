@@ -93,19 +93,19 @@ class PreviewAsync extends Component {
 			error: null
 		})
 
-		import(/* webpackChunkName: "compiler" */ 'vue-inbrowser-compiler').then(({ compile }) => {
-			try {
-				const example = compile(newCode, {
-					...this.context.config.compilerConfig,
-					...(this.context.config.jsxInExamples
-						? { jsx: '__pragma__(h)', objectAssign: 'concatenate' }
-						: {})
-				})
-				this.setCompiledPreview(example)
-			} catch (err) {
-				this.handleError(err)
+		import(/* webpackChunkName: "compiler" */ 'vue-inbrowser-compiler').then(
+			async ({ compile }) => {
+				try {
+					const example = await compile(newCode, {
+						...this.context.config.compilerConfig,
+						...(this.context.config.jsxInExamples ? { jsx: '__pragma__(h)' } : {})
+					})
+					this.setCompiledPreview(example)
+				} catch (err) {
+					this.handleError(err)
+				}
 			}
-		})
+		)
 	}
 
 	setCompiledPreview(example) {

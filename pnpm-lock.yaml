@@ -842,9 +842,8 @@ importers:
       fibers: 4.0.3
       sass: 1.26.10
       vue: 2.6.11
-      vue-i18n: 7.8.1
-      vue-style-loader: 4.1.2
-      vuetify: 2.3.8_vue@2.6.11
+      vue-i18n: 8.22.4
+      vuetify: 2.4.4_vue@2.6.11
     devDependencies:
       '@babel/core': 7.11.1
       '@babel/plugin-transform-runtime': 7.11.0_@babel+core@7.11.1
@@ -856,8 +855,10 @@ importers:
       material-design-icons-iconfont: 5.0.1
       sass-loader: 8.0.2_53a7fd493caaac4a0603fd142e4f050d
       style-loader: 0.19.1
-      vue-loader: 15.9.3_css-loader@3.6.0+webpack@4.44.1
+      vue-loader: 15.9.3_730d5f8f6bf5f57655729c7ada2ad730
+      vue-style-loader: 4.1.2
       vue-styleguidist: link:../../packages/vue-styleguidist
+      vue-template-compiler: 2.6.12
       webpack: 4.44.1
     specifiers:
       '@babel/core': ^7.2.2
@@ -874,11 +875,12 @@ importers:
       sass-loader: ^8.0.0
       style-loader: ^0.19.0
       vue: ^2.5.16
-      vue-i18n: ^7.6.0
+      vue-i18n: ^8.22.4
       vue-loader: ^15.2.4
       vue-style-loader: ^4.1.2
       vue-styleguidist: ^4.0.0
-      vuetify: ^2.0.4
+      vue-template-compiler: ^2.5.16
+      vuetify: ^2.4.4
       webpack: ^4.10.0
   examples/vuex:
     dependencies:
@@ -1078,9 +1080,9 @@ importers:
     dependencies:
       acorn: 6.4.1
       acorn-jsx: 5.2.0_acorn@6.4.1
-      buble: 0.19.8
       camelcase: 5.3.1
       detect-browser: 5.2.0
+      esbuild-wasm: 0.8.50
       vue-inbrowser-compiler-utils: link:../vue-inbrowser-compiler-utils
       walkes: 0.2.1
     devDependencies:
@@ -1099,9 +1101,9 @@ importers:
       '@vue/test-utils': ^1.1.0
       acorn: ^6.1.1
       acorn-jsx: ^5.0.1
-      buble: ^0.19.7
       camelcase: ^5.3.1
       detect-browser: ^5.2.0
+      esbuild-wasm: ^0.8.50
       rollup: ^2.26.3
       rollup-plugin-typescript2: ^0.27.2
       typescript: ^3.9.7
@@ -1151,6 +1153,7 @@ importers:
       css-loader: 2.1.1_webpack@4.44.1
       es6-object-assign: 1.1.0
       es6-promise: 4.2.8
+      esbuild-wasm: 0.8.50
       escodegen: 1.14.3
       findup: 0.1.5
       function.name-polyfill: 1.0.6
@@ -1181,6 +1184,7 @@ importers:
       react-lifecycles-compat: 3.0.4
       react-simple-code-editor: 0.11.0_react-dom@16.13.1+react@16.13.1
       react-styleguidist: 11.1.0_0ef0fc372bbe7446962b2f2b401490c1
+      regenerator-runtime: 0.13.7
       rewrite-imports: 2.0.3
       style-loader: 1.2.1_webpack@4.44.1
       terser-webpack-plugin: 2.3.7_webpack@4.44.1
@@ -1209,7 +1213,6 @@ importers:
       '@types/webpack': 4.41.21
       '@types/webpack-dev-server': 3.11.0
       '@types/webpack-merge': 4.1.5
-      buble: 0.19.8
       concurrently: 4.1.2
       ejs: 2.7.4
       pug: 3.0.0
@@ -1237,7 +1240,6 @@ importers:
       '@types/webpack-merge': ^4.1.5
       '@vxna/mini-html-webpack-template': ^1.0.0
       ast-types: ^0.13.3
-      buble: ^0.19.8
       classnames: ^2.2.6
       clean-webpack-plugin: ^3.0.0
       cli-progress: ^3.0.0
@@ -1252,6 +1254,7 @@ importers:
       ejs: ^2.7.4
       es6-object-assign: ^1.1.0
       es6-promise: ^4.2.6
+      esbuild-wasm: ^0.8.50
       escodegen: ^1.11.1
       findup: ^0.1.5
       function.name-polyfill: ^1.0.6
@@ -1283,6 +1286,7 @@ importers:
       react-lifecycles-compat: ^3.0.4
       react-simple-code-editor: ^0.11.0
       react-styleguidist: ^11.0.9
+      regenerator-runtime: ^0.13.7
       rewrite-imports: ^2.0.3
       source-map: 0.6.1
       strip-shebang: ^1.0.2
@@ -7674,6 +7678,7 @@ packages:
   /acorn-dynamic-import/4.0.0_acorn@6.4.2:
     dependencies:
       acorn: 6.4.2
+    dev: false
     peerDependencies:
       acorn: ^6.0.0
     resolution:
@@ -7709,6 +7714,7 @@ packages:
   /acorn-jsx/5.3.1_acorn@6.4.2:
     dependencies:
       acorn: 6.4.2
+    dev: false
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     resolution:
@@ -9460,6 +9466,7 @@ packages:
       minimist: 1.2.5
       os-homedir: 2.0.0
       regexpu-core: 4.7.1
+    dev: false
     hasBin: true
     resolution:
       integrity: sha512-IoGZzrUTY5fKXVkgGHw3QeXFMUNBFv+9l8a4QJKG1JhG3nCMHTdEX1DCOg8568E2Q9qvAQIiSokv6Jsgx8p2cA==
@@ -12446,6 +12453,13 @@ packages:
     dev: true
     resolution:
       integrity: sha1-UQnWLz5W6pZ8S2NQWu8IKRyKUgM=
+  /esbuild-wasm/0.8.50:
+    dev: false
+    engines:
+      node: '>=8'
+    hasBin: true
+    resolution:
+      integrity: sha512-jutCMpyII3gt/gvFpSTn7trb4q6Yo+jp58Tx21CJ167eHhrQU2sFqk4fWdKDNKCqXIz2vq8PMsEZ7HzN1ESFbQ==
   /escalade/3.0.2:
     engines:
       node: '>=6'
@@ -19315,6 +19329,7 @@ packages:
       integrity: sha1-/7xJiDNuDoM94MFox+8VISGqf7M=
   /os-homedir/2.0.0:
     deprecated: This is not needed anymore. Use `require('os').homedir()` instead.
+    dev: false
     engines:
       node: '>=0.10.0'
     resolution:
@@ -22016,6 +22031,7 @@ packages:
       regjsparser: 0.6.4
       unicode-match-property-ecmascript: 1.0.4
       unicode-match-property-value-ecmascript: 1.2.0
+    dev: false
     engines:
       node: '>=4'
     resolution:
@@ -25524,10 +25540,6 @@ packages:
   /vue-hot-reload-api/2.3.4:
     resolution:
       integrity: sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
-  /vue-i18n/7.8.1:
-    dev: false
-    resolution:
-      integrity: sha512-BzB+EAPo/iFyFn/GXd/qVdDe67jfk+gmQaWUKD5BANhUclGrFxzRExzW2pYEAbhNm2pg0F12Oo+gL2IMLDcTAw==
   /vue-i18n/8.21.0:
     dev: false
     resolution:
@@ -25535,6 +25547,10 @@ packages:
   /vue-i18n/8.22.0:
     resolution:
       integrity: sha512-2tYS0bYDPJHKAWPy01aDe5h3wcXDGjhJmboHKOfi2OEYR+6gyXaIzdua1smZCQwOeWdlGsLntwdIgkXWrnLjxg==
+  /vue-i18n/8.22.4:
+    dev: false
+    resolution:
+      integrity: sha512-XLI5s0AdqMP2Lf4I4CmdmOq8kjb5DDFGR77wAuxCfpEuYSfhTRyyx6MetgZMiL6Lxa0DasjBOiOcciU3NkL3/Q==
   /vue-inbrowser-compiler-utils/4.33.6:
     dependencies:
       camelcase: 5.3.1
@@ -25952,6 +25968,7 @@ packages:
   /vuetify/2.3.8_vue@2.6.11:
     dependencies:
       vue: 2.6.11
+    dev: true
     peerDependencies:
       vue: ^2.6.4
     resolution:
@@ -25964,6 +25981,14 @@ packages:
       vue: ^2.6.4
     resolution:
       integrity: sha512-T754w4jV3eeuEwEfRTpHdlo76ZRUVTBeMMzVyqSEr61AfhDSYf9rJfHOlhfXG4aaQbZ34dRR48bzRiS4ICz2fQ==
+  /vuetify/2.4.4_vue@2.6.11:
+    dependencies:
+      vue: 2.6.11
+    dev: false
+    peerDependencies:
+      vue: ^2.6.4
+    resolution:
+      integrity: sha512-/4+xX9XbcwXBjrtptDxm5S4NXVaVGF8UJ3U7Nk20fl4aM84PGgGyqVCfi8hVa8t1gd+2Wz4FCztbR7JgJcBIQQ==
   /vuex/3.5.1_vue@2.6.11:
     dependencies:
       vue: 2.6.11

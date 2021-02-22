@@ -20,7 +20,7 @@ By default vue-styleguidist will build one single bundle for all your javascript
 
 ## `compilerConfig`
 
-Type: `Object`, default: `{ objectAssign: 'Object.assign' }`
+Type: `Object`, default: `{ }`
 
 Styleguidist uses [Bublé](https://buble.surge.sh/guide/) to run ES6 code on the frontend. This config object will be added as the second argument for `buble.transform`.
 

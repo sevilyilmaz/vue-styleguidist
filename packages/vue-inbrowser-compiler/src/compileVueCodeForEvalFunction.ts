@@ -1,4 +1,4 @@
-import { transform, TransformOptions } from 'buble'
+import { TransformOptions, startService } from 'esbuild-wasm'
 import walkes from 'walkes'
 import { isCodeVueSfc } from 'vue-inbrowser-compiler-utils'
 import transformOneImport from './transformOneImport'
@@ -13,6 +13,7 @@ import getTargetFromBrowser from './getTargetFromBrowser'
 
 interface EvaluableComponent {
 	script: string
+	sourceMap?: string
 	template?: string
 	style?: string
 }
@@ -24,15 +25,34 @@ interface EvaluableComponent {
  * @param config buble config to be used when transforming
  *
  */
-export default function compileVueCodeForEvalFunction(
+export default async function compileVueCodeForEvalFunction(
 	code: string,
-	config: TransformOptions = {}
-): EvaluableComponent {
+	config: TransformOptions & { jsx?: string } = {}
+): Promise<EvaluableComponent> {
 	const nonCompiledComponent = prepareVueCodeForEvalFunction(code, config)
-	const target = typeof window !== 'undefined' ? getTargetFromBrowser() : {}
+	const target = typeof window !== 'undefined' ? getTargetFromBrowser() : undefined
+	if (config.jsx && !config.jsxFactory) {
+		config.jsxFactory = config.jsx
+		delete config.jsx
+	}
+	const transpiler = await startService(
+		target === 'node9'
+			? {}
+			: {
+					wasmURL: 'https://unpkg.com/esbuild-wasm@0.8.50/esbuild.wasm',
+					worker: true
+			  }
+	)
+
+	const result = await transpiler.transform(nonCompiledComponent.script, {
+		loader: config.jsxFactory ? 'tsx' : 'ts',
+		target,
+		...config
+	})
 	return {
 		...nonCompiledComponent,
-		script: transform(nonCompiledComponent.script, { target, ...config }).code
+		script: result.code,
+		sourceMap: result.map
 	}
 }
 

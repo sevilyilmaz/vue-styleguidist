@@ -75,7 +75,7 @@ class Preview extends Component {
 		}
 	}
 
-	executeCode() {
+	async executeCode() {
 		this.setState({
 			error: null
 		})
@@ -89,11 +89,9 @@ class Preview extends Component {
 		let previewComponent = {}
 
 		try {
-			const example = compile(code, {
+			const example = await compile(code, {
 				...this.context.config.compilerConfig,
-				...(this.context.config.jsxInExamples
-					? { jsx: '__pragma__(h)', objectAssign: 'concatenate' }
-					: {})
+				...(this.context.config.jsxInExamples ? { jsx: '__pragma__(h)' } : {})
 			})
 			style = example.style
 			if (example.script) {
