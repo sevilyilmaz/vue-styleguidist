@@ -9,13 +9,13 @@ import transformTagsIntoObject from '../utils/transformTagsIntoObject'
 import { describePropsFromValue } from './propHandler'
 
 /**
- * Extract information from an setup-style VueJs 3 component 
+ * Extract information from an setup-style VueJs 3 component
  * about what props can be used with this component
  * @param {NodePath} astPath
  * @param {Array<NodePath>} componentDefinitions
  * @param {string} originalFilePath
  */
- export default async function setupPropHandler(
+export default async function setupPropHandler(
 	documentation: Documentation,
 	componentDefinition: NodePath,
 	astPath: bt.File,
@@ -26,32 +26,32 @@ import { describePropsFromValue } from './propHandler'
 		visitCallExpression(nodePath) {
 			if (bt.isIdentifier(nodePath.node.callee) && nodePath.node.callee.name === 'defineProps') {
 				propsDef = nodePath.get('arguments', 0)
-				
-				if((nodePath.node as any).typeParameters){
+
+				if ((nodePath.node as any).typeParameters) {
 					const typeParamsPath = nodePath.get('typeParameters', 'params', 0)
-					if(bt.isTSTypeLiteral(typeParamsPath.node)){
+					if (bt.isTSTypeLiteral(typeParamsPath.node)) {
 						typeParamsPath.get('members').each((prop: NodePath) => {
-							if(bt.isTSPropertySignature(prop.node) && bt.isIdentifier(prop.node.key)){
+							if (bt.isTSPropertySignature(prop.node) && bt.isIdentifier(prop.node.key)) {
 								const propDescriptor = documentation.getPropDescriptor(prop.node.key.name)
 
 								// description
 								const docBlock = getDocblock(prop)
 								const jsDoc: DocBlockTags = docBlock
-								? getDoclets(docBlock)
-								: { description: '', tags: [] }
+									? getDoclets(docBlock)
+									: { description: '', tags: [] }
 								const jsDocTags: BlockTag[] = jsDoc.tags ? jsDoc.tags : []
 
 								if (jsDoc.description) {
 									propDescriptor.description = jsDoc.description
 								}
-				
+
 								if (jsDocTags.length) {
 									propDescriptor.tags = transformTagsIntoObject(jsDocTags)
 								}
 
 								propDescriptor.required = !prop.node.optional
 
-								propDescriptor.type = resolveTSType(prop)							
+								propDescriptor.type = resolveTSType(prop)
 							}
 						})
 					}
@@ -61,44 +61,47 @@ import { describePropsFromValue } from './propHandler'
 		}
 	})
 
-	if(propsDef){
+	if (propsDef) {
 		await describePropsFromValue(documentation, propsDef, astPath, opt)
 	}
 }
 
-function resolveTSType(prop: NodePath) {
-
+function resolveTSType(prop: NodePath): any {
 	const typeAnnotation = prop.node.typeAnnotation?.typeAnnotation
-	const primitiveType: string | undefined = ({
-		TSBooleanKeyword: 'boolean',
-		TSNumberKeyword: 'number',
-		TSStringKeyword: 'string',
-	} as any)[typeAnnotation.type as string]
+	const primitiveType: string | undefined = (
+		{
+			TSBooleanKeyword: 'boolean',
+			TSNumberKeyword: 'number',
+			TSStringKeyword: 'string'
+		} as any
+	)[typeAnnotation.type as string]
 
-
-	if(primitiveType){
+	if (primitiveType) {
 		return {
-			name: primitiveType,
+			name: primitiveType
 		}
-	} else if(bt.isTSArrayType(typeAnnotation)) {
-		if(typeAnnotation.elementType){
+	} else if (bt.isTSArrayType(typeAnnotation)) {
+		if (typeAnnotation.elementType) {
 			return {
-				name: "array",
+				name: 'array',
 				elements: [resolveTSType(prop.get('typeAnnotation', 'typeAnnotation', 'elementType'))]
 			}
 		}
 		return {
-			name: "array",
+			name: 'array'
 		}
-	} else if(bt.isTSTypeLiteral(typeAnnotation)) {
+	} else if (bt.isTSTypeLiteral(typeAnnotation)) {
 		return {
 			name: 'signature',
 			type: 'object',
-			properties: prop.get('typeAnnotation', 'typeAnnotation', 'members').map((member: NodePath) => {
-				if(bt.isTSPropertySignature(member.node) && bt.isIdentifier(member.node.key)){
-					return { key: member.node.key.name, value: resolveTSType(member) }
-				}
-			}).filter((p: any) => p)
+			properties: prop
+				.get('typeAnnotation', 'typeAnnotation', 'members')
+				.map((member: NodePath) => {
+					if (bt.isTSPropertySignature(member.node) && bt.isIdentifier(member.node.key)) {
+						return { key: member.node.key.name, value: resolveTSType(member) }
+					}
+				})
+				.filter((p: any) => p)
 		}
 	}
 }
