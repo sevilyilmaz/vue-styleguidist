@@ -6,7 +6,8 @@ import Documentation, {
 	DocBlockTags,
 	PropDescriptor,
 	ParamTag,
-	UnnamedParam
+	UnnamedParam,
+	TypeOfProp
 } from '../Documentation'
 import getDocblock from '../utils/getDocblock'
 import getDoclets from '../utils/getDoclets'
@@ -16,7 +17,7 @@ import getTemplateExpressionAST from '../utils/getTemplateExpressionAST'
 import parseValidatorForValues from './utils/parseValidator'
 import { ParseOptions } from '../parse'
 
-type ValueLitteral = bt.StringLiteral | bt.BooleanLiteral | bt.NumericLiteral
+type ValueLiteral = bt.StringLiteral | bt.BooleanLiteral | bt.NumericLiteral
 
 function getRawValueParsedFromFunctionsBlockStatementNode(
 	blockStatementNode: bt.BlockStatement
@@ -61,12 +62,12 @@ export default async function propHandler(
 }
 
 export async function describePropsFromValue(
-	documentation: Documentation, 
-	propsValuePath: NodePath<bt.ObjectExpression, any> | NodePath<bt.ArrayExpression, any> , 
+	documentation: Documentation,
+	propsValuePath: NodePath<bt.ObjectExpression, any> | NodePath<bt.ArrayExpression, any>,
 	ast: bt.File,
 	opt: ParseOptions,
 	modelPropertyName: string | null = null
-	){
+) {
 	if (bt.isObjectExpression(propsValuePath.node)) {
 		const objProp = propsValuePath.get('properties')
 
@@ -80,9 +81,7 @@ export async function describePropsFromValue(
 
 				// description
 				const docBlock = getDocblock(prop)
-				const jsDoc: DocBlockTags = docBlock
-					? getDoclets(docBlock)
-					: { description: '', tags: [] }
+				const jsDoc: DocBlockTags = docBlock ? getDoclets(docBlock) : { description: '', tags: [] }
 				const jsDocTags: BlockTag[] = jsDoc.tags ? jsDoc.tags : []
 
 				// if it's the v-model describe it only as such
@@ -156,8 +155,8 @@ export async function describePropsFromValue(
 				} else {
 					// in any other case, just display the code for the typing
 					propDescriptor.type = {
-						name: print(prop.get('value')).code,
-						func: true
+						name: 'code',
+						code: print(prop.get('value')).code
 					}
 				}
 			})
@@ -167,8 +166,7 @@ export async function describePropsFromValue(
 			.get('elements')
 			.filter((e: NodePath) => bt.isStringLiteral(e.node))
 			.forEach((e: NodePath<bt.StringLiteral>) => {
-				const propDescriptor = documentation.getPropDescriptor(e.node.value)
-				propDescriptor.type = { name: 'undefined' }
+				documentation.getPropDescriptor(e.node.value)
 			})
 	}
 }
@@ -188,28 +186,13 @@ export function describeType(
 	if (propDescriptor.tags && propDescriptor.tags.type) {
 		const [{ type: typeDesc }] = propDescriptor.tags.type as UnnamedParam[]
 		if (typeDesc) {
-			const typedAST = getTemplateExpressionAST(`const a:${typeDesc.name}`)
-			let typeValues: string[] | undefined
-			visit(typedAST.program, {
-				visitVariableDeclaration(path) {
-					const { typeAnnotation } = path.get('declarations', 0, 'id', 'typeAnnotation').value
-					if (
-						bt.isTSUnionType(typeAnnotation) &&
-						typeAnnotation.types.every(t => bt.isTSLiteralType(t))
-					) {
-						typeValues = typeAnnotation.types.map((t: bt.TSLiteralType) =>
-							t.literal.value.toString()
-						)
-					}
-					return false
-				}
-			})
-			if (typeValues) {
-				propDescriptor.values = typeValues
-			} else {
-				propDescriptor.type = typeDesc
-				return getTypeFromTypePath(typeArray[0].get('value')).name
+			if (typeDesc.name === 'union' && typeDesc.elements) {
+				propDescriptor.values = typeDesc.elements
+					.map(el => (el.name === 'literal' ? el.value.toString() : undefined))
+					.filter(val => val) as string[]
 			}
+			propDescriptor.type = typeDesc
+			return getTypeFromTypePath(typeArray[0].get('value')).name
 		}
 	}
 
@@ -221,11 +204,11 @@ export function describeType(
 		if (defaultArray.length) {
 			const typeNode = defaultArray[0].node
 			if (bt.isObjectProperty(typeNode)) {
-				const func =
-					bt.isArrowFunctionExpression(typeNode.value) || bt.isFunctionExpression(typeNode.value)
-				const typeValueNode = defaultArray[0].get('value').node as ValueLitteral
+				const typeValueNode = defaultArray[0].get('value').node as ValueLiteral
 				const typeName = typeof typeValueNode.value
-				propDescriptor.type = { name: func ? 'func' : typeName }
+				if (['boolean', 'number', 'string'].includes(typeName)) {
+					propDescriptor.type = { name: typeName as any }
+				}
 			}
 		}
 	}
@@ -271,10 +254,9 @@ function describeTypeAndValuesFromPath(
 	return propDescriptor.type.name
 }
 
-export function getTypeFromTypePath(typePath: NodePath<bt.TSAsExpression | bt.Identifier>): {
-	name: string
-	func?: boolean
-} {
+export function getTypeFromTypePath(
+	typePath: NodePath<bt.TSAsExpression | bt.Identifier>
+): TypeOfProp {
 	const typeNode = typePath.node
 	const { typeAnnotation } = typeNode
 
@@ -353,7 +335,7 @@ export function describeDefault(
 				const isArrowFunction = bt.isArrowFunctionExpression(defaultFunction.node)
 				const isOldSchoolFunction = bt.isFunctionExpression(defaultFunction.node)
 
-				// if default is undefined or null, litterals are allowed
+				// if default is undefined or null, literals are allowed
 				if (
 					bt.isNullLiteral(defaultFunction.node) ||
 					(bt.isIdentifier(defaultFunction.node) && defaultFunction.node.name === 'undefined')
